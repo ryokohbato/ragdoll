@@ -6,10 +6,175 @@
   xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
   xmlns:local="clr-namespace:ragdoll"
   mc:Ignorable="d"
-  Title="MainWindow"
-  Height="450"
-  Width="800">
+  Title="{Binding WindowTitle}"
+  Height="{Binding WindowHeight, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+  Width="{Binding WindowWidth, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+  Foreground="{Binding ForegroundColor}"
+  FontSize="{Binding MainFontSize}"
+  BorderThickness="0"
+  AllowsTransparency="True"
+  WindowStyle="None">
 
-  <Grid>
+  <WindowChrome.WindowChrome>
+    <WindowChrome
+      CaptionHeight="0"
+      GlassFrameThickness="-1"
+      ResizeBorderThickness="{Binding ResizeBorderThickness}"
+      UseAeroCaptionButtons="False"/>
+  </WindowChrome.WindowChrome>
+  <Window.Background>
+    <ImageBrush
+      Opacity="1"
+      Stretch="None"
+      TileMode="Tile"
+      Viewport="0,0,128,128"
+      ViewportUnits="Absolute" />
+  </Window.Background>
+  <Window.DataContext>
+    <local:MainViewModel/>
+  </Window.DataContext>
+  <Window.Resources>
+    <local:SpaceConverter x:Key="SpaceConverter"/>
+  </Window.Resources>
+  
+  <Grid
+    Background="{Binding BackgroundColor}"
+    IsHitTestVisible="True"
+    MouseLeftButtonDown="Grid_MouseLeftButtonDown">
+    <Grid.RowDefinitions>
+      <RowDefinition Height="{Binding CaptionHeight}"></RowDefinition>
+      <RowDefinition Height="{Binding MainFontSize, Converter={StaticResource SpaceConverter}}"></RowDefinition>
+      <RowDefinition Height="*"></RowDefinition>
+      <RowDefinition Height="{Binding ContentSpacing}"></RowDefinition>
+      <RowDefinition Height="{Binding MainFontSize, Converter={StaticResource SpaceConverter}}"></RowDefinition>
+      <RowDefinition Height="*"></RowDefinition>
+      <RowDefinition Height="{Binding ItemMarginWidth}"></RowDefinition>
+    </Grid.RowDefinitions>
+
+    <Grid
+      Grid.Row="0">
+      <StackPanel
+        Orientation="Horizontal"
+        HorizontalAlignment="Right">
+        <Button
+          Style="{DynamicResource ControlButtonStyle}"
+          Command="{Binding CloseWindowCommand}"
+          Content="r"
+          FontFamily="Marlett"
+          FontWeight="UltraLight"
+          FontSize="{Binding CloseButtonFontSize}"
+          Height="{Binding CaptionHeight}"
+          Margin="{Binding CloseButtonMargin}"
+          Width="{Binding CloseButtonWidth}"/>
+      </StackPanel>
+    </Grid>
+
+    <TextBlock
+      Grid.Row="1"
+      Text="{Binding Title__pinned}"
+      FontSize="{Binding TitleFontSize}"
+      Margin="{Binding TitleMargin}"/>
+
+    <ScrollViewer
+      Grid.Row="2"
+      Margin="{Binding ItemIndent}">
+      <StackPanel>
+        <ItemsControl
+          ItemsSource="{Binding WindowInformations__pinned, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+          <ItemsControl.Template>
+            <ControlTemplate TargetType="ItemsControl">
+              <ItemsPresenter Margin="{Binding DataContext.ItemMarginWidth, RelativeSource={RelativeSource FindAncestor, AncestorType=Window}}"/>
+            </ControlTemplate>
+          </ItemsControl.Template>
+
+          <ItemsControl.ItemTemplate>
+            <DataTemplate>
+              <Grid
+                Margin="{Binding DataContext.ItemMarginWidth, RelativeSource={RelativeSource FindAncestor, AncestorType=Window}}">
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="{Binding DataContext.PinIconWidth, RelativeSource={RelativeSource FindAncestor, AncestorType=Window}}"/>
+                  <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Button
+                  Grid.Column="0"
+                  Style="{DynamicResource ControlButtonStyle}"
+                  Width="{Binding DataContext.PinIconWidth, RelativeSource={RelativeSource FindAncestor, AncestorType=Window}}"
+                  HorizontalAlignment="Center"
+                  Command="{Binding DataContext.UnPinWindowCommand, RelativeSource={RelativeSource FindAncestor, AncestorType=Window}}"
+                  CommandParameter="{Binding WindowHandle}">
+                  <Path
+                    Data="M16,9V4l1,0c0.55,0,1-0.45,1-1v0c0-0.55-0.45-1-1-1H7C6.45,2,6,2.45,6,3v0 c0,0.55,0.45,1,1,1l1,0v5c0,1.66-1.34,3-3,3h0v2h5.97v7l1,1l1-1v-7H19v-2h0C17.34,12,16,10.66,16,9z"
+                    Stroke="{Binding DataContext.PinIconColor, RelativeSource={RelativeSource FindAncestor, AncestorType=Window}}"
+                    StrokeThickness="1"
+                    Fill="{Binding DataContext.PinIconColor, RelativeSource={RelativeSource FindAncestor, AncestorType=Window}}"
+                    Width="24"/>
+                </Button>
+                <TextBlock
+                  Grid.Column="1"
+                  Text="{Binding WindowTitle}"
+                  Margin="{Binding DataContext.ItemTextMargin, RelativeSource={RelativeSource FindAncestor, AncestorType=Window}}"/>
+              </Grid>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+      </StackPanel>
+    </ScrollViewer>
+
+    <Label
+      Grid.Row="3"
+      Content=""
+      Background="{Binding SubForegroundColor}"
+      Margin="{Binding ContentSpacingMargin}"/>
+
+    <TextBlock
+      Grid.Row="4"
+      Text="{Binding Title__not_pinned}"
+      FontSize="{Binding TitleFontSize}"
+      Margin="{Binding TitleMargin}"/>
+
+    <ScrollViewer
+      Grid.Row="5"
+      Margin="{Binding ItemIndent}">
+      <StackPanel>
+        <ItemsControl
+          ItemsSource="{Binding WindowInformations__not_pinned, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+          <ItemsControl.Template>
+            <ControlTemplate TargetType="ItemsControl">
+              <ItemsPresenter Margin="{Binding DataContext.ItemMarginWidth, RelativeSource={RelativeSource FindAncestor, AncestorType=Window}}"/>
+            </ControlTemplate>
+          </ItemsControl.Template>
+
+          <ItemsControl.ItemTemplate>
+            <DataTemplate>
+              <Grid
+                Margin="{Binding DataContext.ItemMarginWidth, RelativeSource={RelativeSource FindAncestor, AncestorType=Window}}">
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="{Binding DataContext.PinIconWidth, RelativeSource={RelativeSource FindAncestor, AncestorType=Window}}"/>
+                  <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Button
+                  Grid.Column="0"
+                  Style="{DynamicResource ControlButtonStyle}"
+                  Width="{Binding DataContext.PinIconWidth, RelativeSource={RelativeSource FindAncestor, AncestorType=Window}}"
+                  HorizontalAlignment="Center"
+                  Command="{Binding DataContext.PinWindowCommand, RelativeSource={RelativeSource FindAncestor, AncestorType=Window}}"
+                  CommandParameter="{Binding WindowHandle}">
+                  <Path
+                    Data="M16,9V4l1,0c0.55,0,1-0.45,1-1v0c0-0.55-0.45-1-1-1H7C6.45,2,6,2.45,6,3v0 c0,0.55,0.45,1,1,1l1,0v5c0,1.66-1.34,3-3,3h0v2h5.97v7l1,1l1-1v-7H19v-2h0C17.34,12,16,10.66,16,9z"
+                    Stroke="{Binding DataContext.PinIconColor, RelativeSource={RelativeSource FindAncestor, AncestorType=Window}}"
+                    StrokeThickness="1"
+                    Width="24"/>
+                </Button>
+                <TextBlock
+                  Grid.Column="1"
+                  Text="{Binding WindowTitle}"
+                  Margin="{Binding DataContext.ItemTextMargin, RelativeSource={RelativeSource FindAncestor, AncestorType=Window}}"/>
+              </Grid>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+      </StackPanel>
+    </ScrollViewer>
+
   </Grid>
 </Window>
